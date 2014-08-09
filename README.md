@@ -2,8 +2,7 @@
 
 
 ## Install
-Install via [Composer](https://getcomposer.org/)
-run Composer to install Silex and all its dependencies:
+Install via [Composer](https://getcomposer.org/) to install [Silex](http://silex.sensiolabs.org/) and all its dependencies:
 ```
 $ curl -s http://getcomposer.org/installer | php
 $ php composer.phar install
