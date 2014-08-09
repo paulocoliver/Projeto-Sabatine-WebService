@@ -16,7 +16,6 @@ $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
 	),
 ));
 
-
 ############################## Services ##############################
 # http://silex.sensiolabs.org/doc/services.html
 $app['return'] = $app->protect(function ($result, $error=false, $code=200) use ($app) {
@@ -29,26 +28,35 @@ $app['return'] = $app->protect(function ($result, $error=false, $code=200) use (
 	return $app->json(array('status' => $status, 'result' => $result), $code);//json_encode(array('status' => $status, 'result' => $result));
 });
 
+$app['login'] = $app->protect(function ($email, $senha) use ($app) {
+	return $app['db']->fetchAssoc("SELECT * FROM usuario WHERE email = ? AND senha = ?", array($email, $senha));
+});
+$app['content_decode'] = $app->protect(function () use ($app) {
+	return @json_decode($app['request']->getContent());
+});
+
 
 ############################## Middlewares ##############################
 # http://silex.sensiolabs.org/doc/middlewares.html
 $app->before(function (Request $request) use ($app) {
-	$route_name = $request->attributes->get('_route');
-	$routes_allowed = array();
-
-	if (!in_array($route_name, $routes_allowed)) {
+	try {
+		/*$api_key  = $request->headers->get('API_KEY');
+		if ($api_key != 'd2UyM3dlMjN3ZTIz')
+			throw new Exception('error api_key');*/
 		
-		# http://php.net/manual/pt_BR/features.http-auth.php
-		$username = $request->server->get('PHP_AUTH_USER');
-		$password = $request->server->get('PHP_AUTH_PW');
-
-		$usuario = $app['db']->fetchAssoc("SELECT * FROM usuario WHERE email = ? AND senha = ?", array($username, $password));
-		if (empty($usuario))
-			return $app['return']('Unauthorized', true, 401);
-		$app['usuario'] = $usuario;
-
+		$route_name = $request->attributes->get('_route');
+		$routes_allow = array('POST_usuario', 'POST_usuario_login');
+		
+		if (!in_array($route_name, $routes_allow)) {
+			# http://php.net/manual/pt_BR/features.http-auth.php
+			$usuario = $app['login']($request->getUser(), $request->getPassword());
+			if (empty($usuario))
+				throw new Exception('error auth user');
+			$app['usuario'] = $usuario;
+		}
+	} catch (Exception $e) {
+		return $app['return']('Unauthorized', true, 401);
 	}
-
 });
 
 $app->after(function (Request $request, Response $response) {
@@ -58,10 +66,58 @@ $app->after(function (Request $request, Response $response) {
 
 ############################## Actions ##############################
 # http://silex.sensiolabs.org/doc/usage.html#routing
-$app->get('/', function ()  use ($app) {
+/*
+ * Actions usuario
+ */
+$app->post('/usuario/login', function ()  use ($app) {
+	$content = $app['content_decode']();
+	$usuario = $app['login']($content->email, $content->senha);
+	if (!empty($usuario))
+		return $app['return']($usuario);
+	else	
+		return $app['return']('Erro Login', true);
+});
+$app->get('/usuario', function ()  use ($app) {
+	return $app['return']($app['usuario']);
+});
+$app->post('/usuario', function ()  use ($app) {
+	try {
+		$content = $app['content_decode']();
+		$result = $app['db']->insert(
+			'usuario',
+			array(
+				'nome'  => $content->nome,
+				'email' => $content->email,
+				'senha' => $content->senha,
+			)
+		);
+		if (empty($result))
+			throw new Exception('error_insert');
+		
+		$usuario = $app['login']($content->email, $content->senha);
+		return $app['return']($usuario);
+		
+	} catch (Exception $e) {
+		return $app['return']('Error add', true);
+	}
+});
+$app->put('/usuario', function ()  use ($app) {
+	$content = $app['content_decode']();
 	
-	return $app->json($app['usuario']);
-	/*return $app['twig']->render('user.twig', array(
-	 'users' => $users
-	));*/
+	$data = array();
+	if (!empty($content->nome))
+		$data['nome'] = $content->nome;
+	
+	if (!empty($content->email))
+		$data['email'] = $content->email;
+	
+	if (!empty($content->senha))
+		$data['senha'] = $content->senha;
+	
+	$where = array('id' => $app['usuario']['id']);
+	$result = $app['db']->update('usuario', $where, $data);
+	return $app['return']($result);
+});
+$app->delete('/usuario', function ()  use ($app) {
+	return $app['return']('delete');
 });
