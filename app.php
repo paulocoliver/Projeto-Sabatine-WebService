@@ -66,6 +66,9 @@ $app->after(function (Request $request, Response $response) {
 
 ############################## Actions ##############################
 # http://silex.sensiolabs.org/doc/usage.html#routing
+$app->get('/', function ()  use ($app) {
+	return $app['return']('');
+});
 /*
  * Actions usuario
  */
