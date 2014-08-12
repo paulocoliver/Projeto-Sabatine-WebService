@@ -7,7 +7,6 @@ Clone the repository and use [Composer](https://getcomposer.org/) to install [Si
 $ cd my/project/dir
 $ git clone git://github.com/paulocoliver/Projeto-Sabatine-WebService.git
 $ cd Projeto-Sabatine-WebService/
-$ curl -s http://getcomposer.org/installer | php
 $ php composer.phar install
 $ php -S localhost:8888
 ```
