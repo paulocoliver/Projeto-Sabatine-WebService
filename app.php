@@ -3,6 +3,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 require_once __DIR__.'/vendor/autoload.php';
 require_once 'config-db.php';
+//$db = new Doctrine\DBAL\Connection();
 
 $app = new Silex\Application();
 $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
@@ -51,11 +52,14 @@ $app->before(function (Request $request) use ($app) {
 			# http://php.net/manual/pt_BR/features.http-auth.php
 			$usuario = $app['login']($request->getUser(), $request->getPassword());
 			if (empty($usuario))
-				throw new Exception('error auth user');
+				throw new Exception('Unauthorized');
 			$app['usuario'] = $usuario;
 		}
 	} catch (Exception $e) {
-		return $app['return']('Unauthorized', true, 401);
+		if ($e->getMessage() == 'Unauthorized')
+			return $app['return']('Unauthorized', true, 401);
+		else
+			return $app['return']($e->getMessage(), true, 500);
 	}
 });
 
