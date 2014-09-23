@@ -41,9 +41,9 @@ $app['content_decode'] = $app->protect(function () use ($app) {
 # http://silex.sensiolabs.org/doc/middlewares.html
 $app->before(function (Request $request) use ($app) {
 	try {
-		/*$api_key  = $request->headers->get('API_KEY');
+		$api_key  = $request->headers->get('x-api-key');
 		if ($api_key != 'd2UyM3dlMjN3ZTIz')
-			throw new Exception('error api_key');*/
+			throw new Exception('error header x-api-key');
 		
 		$route_name = $request->attributes->get('_route');
 		$routes_allow = array('POST_usuario', 'POST_usuario_login');
@@ -105,26 +105,37 @@ $app->post('/usuario', function ()  use ($app) {
 		return $app['return']($usuario);
 		
 	} catch (Exception $e) {
-		return $app['return']('Error add', true);
+		return $app['return']('Error create', true);
 	}
 });
 $app->put('/usuario', function ()  use ($app) {
-	$content = $app['content_decode']();
+	try {
+		$content = $app['content_decode']();
+		
+		$data = array();
+		if (!empty($content->nome))
+			$data['nome'] = $content->nome;
+		
+		if (!empty($content->email))
+			$data['email'] = $content->email;
+		
+		if (!empty($content->senha))
+			$data['senha'] = $content->senha;
+		
+		$where = array('id' => $app['usuario']['id']);
+		$result = $app['db']->update('usuario', $data, $where);
+		return $app['return']($result);
+	} catch (Exception $e) {
+		return $app['return']('Error updade', true);
+	}
 	
-	$data = array();
-	if (!empty($content->nome))
-		$data['nome'] = $content->nome;
-	
-	if (!empty($content->email))
-		$data['email'] = $content->email;
-	
-	if (!empty($content->senha))
-		$data['senha'] = $content->senha;
-	
-	$where = array('id' => $app['usuario']['id']);
-	$result = $app['db']->update('usuario', $where, $data);
-	return $app['return']($result);
 });
 $app->delete('/usuario', function ()  use ($app) {
-	return $app['return']('delete');
+	try {
+		$where = array('id' => $app['usuario']['id']);
+		$result = $app['db']->delete('usuario', $where);
+		return $app['return']($result);
+	} catch (Exception $e) {
+		return $app['return']('Error delete', true);
+	}
 });
