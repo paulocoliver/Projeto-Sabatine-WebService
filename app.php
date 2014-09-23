@@ -1,4 +1,6 @@
 <?php
+# SERVER: http://ec2-54-191-139-233.us-west-2.compute.amazonaws.com/
+
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 require_once __DIR__.'/vendor/autoload.php';
@@ -139,3 +141,4 @@ $app->delete('/usuario', function ()  use ($app) {
 		return $app['return']('Error delete', true);
 	}
 });
+
