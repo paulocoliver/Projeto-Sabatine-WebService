@@ -79,3 +79,4 @@ $app->get('/', function ()  use ($app) {
 
 require "usuario.php";
 require "categoria.php";
+require "transacao.php";

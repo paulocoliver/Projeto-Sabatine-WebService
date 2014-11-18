@@ -9,18 +9,12 @@ $app['getCategoria'] = $app->protect(function ($params = array()) use ($app) {
 		$where[] = "id = {$params['id']}";
 		$func    = "fetchAssoc";
 	}
-	
 	if(!empty($params['id_categoria_pai'])){
 		$where[] = "id_categoria_pai = {$params['id_categoria_pai']}";
 	}
 	
-	if(!empty($params['id_usuario'])){
-		$where[] = "id_usuario = {$params['id_usuario']}";
-	}
-	
-	if(count($where)){
-		$query.= " WHERE ".implode(' AND ', $where);
-	}
+	$where[] = "id_usuario = {$app['usuario']['id']} or id_usuario IS NULL";
+	$query  .= " WHERE ".implode(' AND ', $where);
 	
 	return $app['db']->$func($query);
 });
@@ -29,12 +23,7 @@ $app->get('/categoria', function ()  use ($app) {
 	
 	$content 	= $app['content_decode']();
 	
-	$id = null;
-	
-	if(!empty($content) && $content->id){
-		$id = $content->id;
-	}
-	$id			= !empty($content) ? $content->id : null;
+	$id	= (!empty($content) && !empty($content->id) ? $content->id : null);
 	$categoria  = $app['getCategoria']($id);
 	
 	return $app['return']($categoria);
@@ -47,7 +36,7 @@ $app->post('/categoria', function ()  use ($app) {
 			'categoria',
 			array(
 				'titulo'  		   => $content->titulo,
-				'id_usuario'  	   => $content->id_usuario,
+				'id_usuario'  	   => $app['usuario']['id'],
 				'id_categoria_pai' => empty($content->id_categoria_pai) ? NULL : $content->id_categoria_pai
 			)
 		);
@@ -68,18 +57,15 @@ $app->put('/categoria', function ()  use ($app) {
 	try {
 		$content = $app['content_decode']();
 		
-		$data = array();
 		if (!empty($content->titulo))
 			$data['titulo'] = $content->titulo;
 		
 		if (!empty($content->id_categoria_pai))
 			$data['id_categoria_pai'] = $content->id_categoria_pai;
 		
-		if (!empty($content->id_usuario))
-			$data['id_usuario'] = $content->id_usuario;
-		
 		$where = array('id' => $content->id);
 		$result = $app['db']->update('categoria', $data, $where);
+		
 		return $app['return']($result);
 	} catch (Exception $e) {
 		return $app['return']('Error updade', true);

@@ -32,7 +32,8 @@ class cURL{
 			curl_setopt($ch, CURLOPT_USERPWD, "{$this->autentication['user']}:{$this->autentication['password']}"); 
 		}
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-			"x-api-key : {$this->key}"
+			"x-api-key : {$this->key}",
+			"Content-type: text/json; charset='utf-8'"
 		));
 		if(!empty($this->params)){
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $this->params);
@@ -52,9 +53,11 @@ class cURL{
 }
 
 $cURL = new cURL();
-$cURL->set('resource', '/categoria')
+$cURL->set('resource', '/transacao')
 	 ->set('method', 'DELETE')
 	 ->set('autentication', array('user' => 'ro.damasceno@gmail.com', 'password' => '123456'))
-	->set('params', json_encode(array('id' => '27')))
+	 ->set('params', json_encode(array(
+	 		'id'=> 3
+		)))
 	 ->exec();
 ?>
