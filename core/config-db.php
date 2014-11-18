@@ -1,7 +1,7 @@
 <?php
 $db = array(
-	'host' 		=> '127.0.01',
+	'host' 		=> 'localhost',
 	'dbname' 	=> 'webservice',
 	'user' 		=> 'root',
-	'password' 	=> 'root',
+	'password' 	=> '',
 );
