@@ -13,10 +13,13 @@ $app['getCategoria'] = $app->protect(function ($params = array()) use ($app) {
 		$where[] = "id_categoria_pai = {$params['id_categoria_pai']}";
 	}
 	
-	$where[] = "id_usuario = {$app['usuario']['id']} or id_usuario IS NULL";
+	$where[] = "id_usuario = {$app['usuario']['id']}";
 	$query  .= " WHERE ".implode(' AND ', $where);
 	
-	return $app['db']->$func($query);
+	//echo $query;
+	//exit;
+	$res = $app['db']->$func($query);
+	return !empty($res) ? $res : array();
 });
 
 $app->get('/categoria', function ()  use ($app) {
@@ -26,6 +29,10 @@ $app->get('/categoria', function ()  use ($app) {
 
 $app->get('/categoria/{id}', function ($id)  use ($app) {
 	$categoria  = $app['getCategoria'](array('id' => $id));
+	
+	if (empty($categoria))
+		return $app['return']('Categoria não encontrada', true, 404);
+	
 	return $app['return']($categoria);
 })->assert('id', '\d+');
 
