@@ -20,14 +20,14 @@ $app['getCategoria'] = $app->protect(function ($params = array()) use ($app) {
 });
 
 $app->get('/categoria', function ()  use ($app) {
-	
-	$content 	= $app['content_decode']();
-	
-	$id	= (!empty($content) && !empty($content->id) ? $content->id : null);
-	$categoria  = $app['getCategoria']($id);
-	
+	$categoria  = $app['getCategoria']();	
 	return $app['return']($categoria);
 });
+
+$app->get('/categoria/{id}', function ($id)  use ($app) {
+	$categoria  = $app['getCategoria'](array('id' => $id));
+	return $app['return']($categoria);
+})->assert('id', '\d+');
 
 $app->post('/categoria', function ()  use ($app) {
 	try {
