@@ -51,16 +51,15 @@ $app->post('/categoria', function ()  use ($app) {
 		if (empty($result))
 			throw new Exception('error_insert_categoria');
 		
-		$categoria = $app['getCategoria']($app['db']->lastInsertId());
-		return $app['return']($categoria);
+		$categoria = $app['getCategoria'](array('id' => $app['db']->lastInsertId()));
+		return $app['return']($categoria, false, 201);
 		
 	} catch (Exception $e) {
-		die($e);
 		return $app['return']('Error create', true);
 	}
 });
 
-$app->put('/categoria', function ()  use ($app) {
+$app->put('/categoria/{id}', function ($id)  use ($app) {
 	try {
 		$content = $app['content_decode']();
 		
@@ -70,7 +69,7 @@ $app->put('/categoria', function ()  use ($app) {
 		if (!empty($content->id_categoria_pai))
 			$data['id_categoria_pai'] = $content->id_categoria_pai;
 		
-		$where = array('id' => $content->id);
+		$where = array('id' => $id);
 		$result = $app['db']->update('categoria', $data, $where);
 		
 		return $app['return']($result);
