@@ -48,7 +48,7 @@ $app->get('/transacao', function ()  use ($app) {
 $app->get('/transacao/{id}', function ($id)  use ($app) {
 	//$content = $app['content_decode']();
 	//$id	= (!empty($content) && !empty($content->id) ? $content->id : null);
-	$transacao  = $app['getTransacao']($id);
+	$transacao  = $app['getTransacao'](array('id' => $id));
 
 	return $app['return']($transacao);
 });
@@ -83,7 +83,7 @@ $app->post('/transacao', function ()  use ($app) {
 	}
 });
 
-$app->put('/transacao', function ()  use ($app) {
+$app->put('/transacao/{id}', function ($id)  use ($app) {
 	try {
 		$content = $app['content_decode']();
 		
@@ -104,7 +104,7 @@ $app->put('/transacao', function ()  use ($app) {
 			$data['id_categoria'] = (empty($content->id_categoria) ? NULL : $content->id_categoria);
 		}
 		
-		$where = array('id' => $content->id);
+		$where = array('id' => $id);
 		$result = $app['db']->update('transacao', $data, $where);
 		return $app['return']($result);
 	} catch (Exception $e) {
@@ -112,11 +112,11 @@ $app->put('/transacao', function ()  use ($app) {
 	}
 });
 
-$app->delete('/transacao', function ()  use ($app) {
+$app->delete('/transacao/{id}', function ($id)  use ($app) {
 	try {
 		$content = $app['content_decode']();
 		
-		$where  = array('id' => $content->id);
+		$where  = array('id' => $id);
 		$result = $app['db']->delete('transacao', $where);
 		return $app['return']($result);
 	} catch (Exception $e) {
