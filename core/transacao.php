@@ -45,6 +45,14 @@ $app->get('/transacao', function ()  use ($app) {
 	return $app['return']($transacao);
 });
 
+$app->get('/transacao/{id}', function ($id)  use ($app) {
+	//$content = $app['content_decode']();
+	//$id	= (!empty($content) && !empty($content->id) ? $content->id : null);
+	$transacao  = $app['getTransacao']($id);
+
+	return $app['return']($transacao);
+});
+
 $app->post('/transacao', function ()  use ($app) {
 	try {
 		$content = $app['content_decode']();
