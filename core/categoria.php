@@ -79,11 +79,9 @@ $app->put('/categoria', function ()  use ($app) {
 	}
 });
 
-$app->delete('/categoria', function ()  use ($app) {
-	try {
-		$content = $app['content_decode']();
-		
-		$where  = array('id' => $content->id);
+$app->delete('/categoria/{id}', function ($id)  use ($app) {
+	try {		
+		$where  = array('id' => $id);
 		$result = $app['db']->delete('categoria', $where);
 		return $app['return']($result);
 	} catch (Exception $e) {
